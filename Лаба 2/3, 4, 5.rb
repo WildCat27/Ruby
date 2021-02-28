@@ -18,6 +18,16 @@ def read_list_2 n
 end
 
 
+def read_list_3 n
+    list = Array.new
+    0.upto(n - 1) do |i|
+        item = STDIN.gets.chomp
+        list[i] = item
+    end
+    list
+end
+
+
 def read_list_from_file filename
     file = open filename
     lines = []
@@ -45,6 +55,8 @@ else
         list = read_list_1 n
     when "2"
         list = read_list_2 n
+    when "3"
+        list = read_list_3 n
     end
 end
 print list

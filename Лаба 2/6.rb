@@ -34,6 +34,15 @@ def in_interval array, a, b
 end
 
 
+def in_segment array, a, b
+    count = 0
+    for item in array
+        count += 1 if a <= item && item <= b
+    end
+    count
+end
+
+
 def count_between_mins array
     first, last = 0, 0
     min = array[0]
@@ -69,4 +78,12 @@ when "3"
     else
         puts "Найден только один минимальный элемент"
     end
+when "4"
+    puts "Введите a"
+    a = Integer(STDIN.gets.chomp)
+
+    puts "Введите b"
+    b = Integer(STDIN.gets.chomp)
+
+    puts "Количество элементов, принадлежащих отрезку [#{a}; #{b}], - #{in_segment input_array, a, b}"
 end
