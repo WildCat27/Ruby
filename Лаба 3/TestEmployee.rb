@@ -1,3 +1,5 @@
+#coding: utf-8
+
 require_relative "Employee"
 
 class TestEmployee
@@ -10,7 +12,16 @@ class TestEmployee
         employee2.ShowInfo
         employee3.ShowInfo
     end
+
+    def Num
+        name = (STDIN.gets.chomp).force_encoding("cp866").encode("utf-8", replace: nil)
+        if Employee.FullName? name
+            puts Employee.CorrectFullName name
+        else
+            puts "incorrect"
+        end
+    end
 end
 
 test = TestEmployee.new
-test.Test
+test.Num
