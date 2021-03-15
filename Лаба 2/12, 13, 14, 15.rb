@@ -1,13 +1,20 @@
 require 'descriptive_statistics'
 
+
 def mean string
     ascii = string.chars.map { |ch| Integer(ch.ord) }
     ascii.mean
 end
 
+
 def squared_deviation_from string, mean
     ascii = string.chars.map { |ch| Integer(ch.ord) }
     Math.sqrt(ascii.map { |i| (i - mean) ** 2 }.sum / ascii.length)
+end
+
+
+def diff string
+    v = string.count("^aeouy")
 end
 
 if ARGV[0] == nil then
@@ -40,6 +47,8 @@ when "4"
 when "5"
     mean = mean lines[0]
     out = lines.sort { |s1, s2| squared_deviation_from(s1, mean) <=> squared_deviation_from(s2, mean) }
+when "6"
+    puts diff lines[0]
 end
 
 IO.write("Лаба 2\\out_12.txt", out.join("\n"))

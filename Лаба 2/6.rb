@@ -59,6 +59,15 @@ def count_between_mins array
 end
 
 
+def union_minus_intersection list1, list2
+    array = []
+    for item in list1 + list2
+        array.push item unless (list1.include? item) &&  (list2.include? item)
+    end
+    array
+end
+
+
 task = ARGV[0]
 
 case task
@@ -86,4 +95,9 @@ when "4"
     b = Integer(STDIN.gets.chomp)
 
     puts "Количество элементов, принадлежащих отрезку [#{a}; #{b}], - #{in_segment input_array, a, b}"
+when "5"
+    list1 = input_array
+    list2 = input_array
+
+    puts "Элементы, не входящие в пересечение, - #{union_minus_intersection list1, list2}"
 end
