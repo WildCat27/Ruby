@@ -16,6 +16,56 @@ class TerminalViewListEmployee
         end
     end
 
+    def Search
+        puts "Введите номер параметра поиска:
+            1 - ФИО;
+            2 - электронная почта;
+            3 - телефон;
+            4 - паспорт."
+        param = STDIN.gets.chomp
+        case param
+        when "1"
+            puts "Введите ФИО:"
+            fullname = Employee.ValidateFullName(STDIN.gets.chomp)
+            employee = @List.SearchByFullname(fullname)
+        when "2"
+            puts "Введите электронную почту:"
+            email = Employee.ValidateEmail(STDIN.gets.chomp)
+            employee = @List.SearchByFullname(email)  
+        when "3"
+            puts "Введите телефон:"
+            phone = Employee.ValidatePhone(STDIN.gets.chomp)
+            employee = @List.SearchByFullname(phone)
+        when "4"
+            puts "Введите паспорт:"
+            passport = Employee.ValidatePassport
+            employee = @List.SearchByFullname(passport)
+        end
+        employee.ShowInfo
+    end
+
+    def Edit employee
+        menu = "Выберите поле для редактирования
+            1 - ФИО;
+            2 - дата рождения;
+            3 - телефон;
+            4 - адрес;
+            5 - электронная почта;
+            6 - паспорт;
+            7 - специальность;
+            8 - стаж"
+        unless employee.Experience == 0 then
+            menu += ";
+                9 - предыдущее место работы;
+                10 - предыдущая должность;
+                11 - предыдущая зарплата."
+        else
+            menu += "."
+        end
+        puts(menu.squeeze("\t"))
+
+    end
+
     def AddEmployee
         
         puts "Введите информацию о работнике"
@@ -63,55 +113,46 @@ class TerminalViewListEmployee
 
     def ViewList
         puts "Список пользователей:"
-        @employees.Get.each { |emp|
+        @employees.Get.each_with_index { |emp, i|
+            puts("# #{i}")
             emp.ShowInfo
         }
     end
 
     def ViewTable
-        fields_length = Array.new
+        fields_length = Array.new(13, 0)
         employees = @employees.Get
+        fields_length[0] = employees.length.to_s.length
 
-        fullnames = employees.map { |emp| emp.FullName.length }
-        fields_length.push((fullnames + [8]).max)
+        employees.each { |emp|
+            fields_length[1] = emp.FullName.length          > fields_length[1] ? emp.FullName.length        : fields_length[1]
+            fields_length[2] = emp.Birthdate.length         > fields_length[2] ? emp.Birthdate.length       : fields_length[2]
+            fields_length[3] = emp.Phone.length             > fields_length[3] ? emp.Phone.length           : fields_length[3]
+            fields_length[4] = emp.Address.length           > fields_length[4] ? emp.Address.length         : fields_length[4]
+            fields_length[5] = emp.EMail.length             > fields_length[5] ? emp.EMail.length           : fields_length[5]
+            fields_length[6] = emp.Passport.length          > fields_length[6] ? emp.Passport.length        : fields_length[6]
+            fields_length[7] = emp.Speciality.length        > fields_length[7] ? emp.Speciality.length      : fields_length[7]
+            fields_length[8] = emp.Experience.to_s.length   > fields_length[8] ? emp.Experience.to_s.length : fields_length[8]
 
-        birthdates = employees.map { |emp| emp.Birthdate.length }
-        fields_length.push((birthdates + [9]).max)
-
-        phones = employees.map { |emp| emp.Phone.length }
-        fields_length.push((phones + [5]).max)
-
-        addresses = employees.map { |emp| emp.Address.length }
-        fields_length.push((addresses + [7]).max)
-
-        emails = employees.map { |emp| emp.EMail.length }
-        fields_length.push((emails + [6]).max)
-
-        passports = employees.map { |emp| emp.Passport.length }
-        fields_length.push((passports + [8]).max)
-
-        specialities = employees.map { |emp| emp.Speciality.length }
-        fields_length.push((specialities + [9]).max)
-
-        experiences = employees.map { |emp| emp.Experience.to_s.length }
-        fields_length.push((experiences + [10]).max)
-=begin
-        previous_workplaces = employees.map { |emp| emp.PreviousWorkplace.length }
-        fields_length.push((previous_workplaces + [17]).max)
-
-        previous_positions = employees.map { |emp| emp.PreviousWosition.length }
-        fields_length.push((previous_positions + [16]).max)
-
-        previous_wages = employees.map { |emp| emp.PreviousWage.to_s.length }
-        fields_length.push((previous_wages + [12]).max)
-=end
+            unless emp.Experience == 0 then 
+                fields_length[9]    = emp.PreviousWorkplace.length  > fields_length[9]  ? emp.PreviousWorkplace.length  : fields_length[9]
+                fields_length[10]   = emp.PreviousPosition.length   > fields_length[10] ? emp.PreviousPosition.length   : fields_length[10]
+                fields_length[11]   = emp.PreviousWage.to_s.length  > fields_length[11] ? emp.PreviousWage.to_s.length  : fields_length[11]
+            end
+        }
 
         fields_length.map! { |f| f + 3 }
 
-        puts("Fullname".ljust(fields_length[0]) + "Birthdate".ljust(fields_length[1]) + "Phone".ljust(fields_length[2]) +"Address".ljust(fields_length[3]) + "E-Mail".ljust(fields_length[4]) + "Passport".ljust(fields_length[5]) + "Speciality".ljust(fields_length[6]) + "Experience".ljust(fields_length[7]))#,"PreviousWorkplace".ljust(fields_length[8]), "PreviousPosition".ljust(fields_length[9]), "PreviousWage".ljust(fields_length[10]))
+        puts("".ljust(fields_length[0]) + "Fullname".ljust(fields_length[1]) + "Birthdate".ljust(fields_length[2]) + "Phone".ljust(fields_length[3]) +"Address".ljust(fields_length[4]) + "E-Mail".ljust(fields_length[5]) + "Passport".ljust(fields_length[6]) + "Speciality".ljust(fields_length[7]) + "Experience".ljust(fields_length[8]) + "PreviousWorkplace".ljust(fields_length[9]) + "PreviousPosition".ljust(fields_length[10]) + "PreviousWage".ljust(fields_length[11]))
 
         employees.each_with_index { |emp, i|
-            puts(emp.FullName.ljust(fields_length[0]) + emp.Birthdate.ljust(fields_length[1]) + emp.Phone.ljust(fields_length[2]) + emp.Address.ljust(fields_length[3]) + emp.EMail.ljust(fields_length[4]) + emp.Passport.ljust(fields_length[5]) + emp.Speciality.ljust(fields_length[6]) + emp.Experience.to_s.ljust(fields_length[7]))#, emp.PreviousWorkplace.ljust(fields_length[8]), emp.PreviousPosition.ljust(fields_length[9]), emp.PreviousWage.ljust(fields_length[10]))
+            out = i.to_s.ljust(fields_length[0]) + emp.FullName.ljust(fields_length[1]) + emp.Birthdate.ljust(fields_length[2]) + emp.Phone.ljust(fields_length[3]) + emp.Address.ljust(fields_length[4]) + emp.EMail.ljust(fields_length[5]) + emp.Passport.ljust(fields_length[6]) + emp.Speciality.ljust(fields_length[7]) + emp.Experience.to_s.ljust(fields_length[8])
+
+            unless emp.Experience == 0 then
+                out += emp.PreviousWorkplace.ljust(fields_length[9]) + emp.PreviousPosition.ljust(fields_length[10]) + emp.PreviousWage.to_s.ljust(fields_length[11])
+            end
+
+            puts(out)
         }
     end
 

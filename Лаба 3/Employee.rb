@@ -10,7 +10,8 @@ class Employee
 
     def self.ValidatePhone string
         if Phone? string
-            string.delete!("\D")
+            string.gsub!(/\D/, "")
+            puts(string)
             return "#{string[0]}-#{string[1..3]}-#{string[4..9]}"
         else
             raise "Некорректный номер телефона"
@@ -75,7 +76,7 @@ class Employee
     end
 
     def self.ValidatePassport string
-        string.delete!("\D")
+        string.gsub!(/\D/, "")
         string[0..3] + " " + string[4..-1]
     end
 
@@ -188,8 +189,10 @@ class Employee
 
     def ShowInfo
         puts "Фамилия Имя Отчество: #{@fullname}"
+        puts "Дата рождения: #{@birthdate}"
         puts "Телефон: #{@phone}"
         puts "Адрес: #{@address}"
+        puts "Электронная почта: #{@email}"
         puts "Пасрорт: #{@passport}"
         puts "Специальность: #{@speciality}"
         puts "Стаж: #{@experience}"
