@@ -4,39 +4,38 @@ require "date"
 
 class Employee
 
-    def self.Phone? string
-        string =~ /^((7|8|\+7)[\-\s]?)?(\(?\d{3}\)?[\-\s]?)?[\d\-\s]{7,10}$/
+    def self.phone? string
+        string =~ /(7|8|\+7)[\-\s]?(\d{3}|(\(\d{3}\)))[\-\s]?\d{2}[\-\s]?\d{2}/
     end
 
-    def self.ValidatePhone string
-        if Phone? string
+    def self.validate_phone string
+        if phone? string
             string.gsub!(/\D/, "")
-            puts(string)
             return "#{string[0]}-#{string[1..3]}-#{string[4..9]}"
         else
             raise "Некорректный номер телефона"
         end
     end
 
-    def self.EMail? string
-        string =~ /^([a-z0-9_-]+\.)*[a-z0-9_-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6}$/
+    def self.email? string
+        string =~ /([a-z0-9_-]+\.)*[a-z0-9_-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6}/
     end
 
-    def self.ValidateEmail string
-        if EMail? string
+    def self.validate_email string
+        if email? string
             return string.downcase
         else
             raise "Некорректный адрес электронной почты"
         end
     end
 
-    def self.FullName? string
+    def self.fullname? string
         # —
-        string =~ /\s*[a-zа-яё]+(\-[a-zа-яё]+)?\s+[a-zа-яё]+(\-[a-zа-яё]+)?\s+[a-zа-яё]+([a-zа-яё]+)?\s*/i
+        string =~ /\s*[a-zа-яё]+(\-[a-zа-яё]+)?\s+[a-zа-яё]+(\-[a-zа-яё]+)?\s+[a-zа-яё]+\s*([a-zа-яё]+)?\s*/i
     end
 
-    def self.ValidateFullName string
-        if FullName? string
+    def self.validate_fullname string
+        if fullname? string
             string = (string.strip.squeeze(" ")).downcase
             string.strip!
             string.gsub!(/\s?\-\s?/, "-")
@@ -52,18 +51,18 @@ class Employee
     end
 
 
-    def self.StringToDate string
+    def self.string_to_date string
         date = (string.split ".").map { |num| Integer(num)}
         date[2] += 2000 if date[2] < 100
         Date.new date[2], date[1], date[0] if Date.valid_date? date[2], date[1], date[0]
     end
 
 
-    def self.BirthDate? string
-        string =~ /\d?\d\.\d\d\.\d\d(\d\d)?/ && (self.StringToDate string)
+    def self.birthdate? string
+        string =~ /\d?\d\.\d\d\.\d\d(\d\d)?/ && (self.string_to_date string)
     end
 
-    def self.ValidateBirthDate string
+    def self.validate_birthdate string
         begin
             Date.strptime(string, "%d.%m.%Y").strftime("%d.%m.%Y")
         rescue
@@ -71,135 +70,131 @@ class Employee
         end
     end
 
-    def self.Passport? string
-        string =~ /\s-\d{4}[\-\.\s*]\d{6}\s*/
+    def self.passport? string
+        string =~ /\s*\d{4}[\-\.\s+]?\d{6}\s*/
     end
 
-    def self.ValidatePassport string
-        string.gsub!(/\D/, "")
-        string[0..3] + " " + string[4..-1]
+    def self.validate_passport string
+        if passport? string
+            string.gsub!(/\D/, "")
+            string[0..3] + " " + string[4..-1]
+        else
+            raise "Некорректный паспорт"
+        end
     end
 
     
-    def self.EmployeeWithoutExperience fullname, birthdate, phone, address, email, passport, speciality
+    def self.employee_without_experience fullname, birthdate, phone, address, email, passport, speciality
         Employee.new fullname, birthdate, phone, address, email, passport, speciality, 0, nil, nil, nil
     end
 
-    def Fullname= fullname
-        @fullname = Employee.ValidateFullName fullname
+    def fullname= fullname
+        @fullname = Employee.validate_fullname fullname
     end
 
-    def FullName
+    def fullname
         @fullname
     end
 
-    def Birthdate= birthdate
-        @birthdate = Employee.ValidateBirthDate birthdate
+    def birthdate= birthdate
+        @birthdate = Employee.validate_birthdate birthdate
     end
 
-    def Birthdate
+    def birthdate
         @birthdate
     end
 
-    def Phone= phone
-        @phone = Employee.ValidatePhone phone
+    def phone= phone
+        @phone = Employee.validate_phone phone
     end
 
-    def Phone
+    def phone
         @phone
     end
 
-    def Address= address
+    def address= address
         @address = address
     end
 
-    def Address
+    def address
         @address
     end
 
-    def EMail= email
-        @email = Employee.ValidateEmail email
+    def email= email
+        @email = Employee.validate_email email
     end
 
-    def EMail
+    def email
         @email
     end
 
-    def Passport= passport
-        @passport = Employee.ValidatePassport passport
+    def passport= passport
+        @passport = Employee.validate_passport passport
     end
 
-    def Passport
+    def passport
         @passport
     end
 
-    def Speciality= speciality
+    def speciality= speciality
         @speciality = speciality
     end
 
-    def Speciality
+    def speciality
         @speciality
     end
 
-    def Experience= experience
+    def experience= experience
         @experience = experience
     end
 
-    def Experience
+    def experience
         @experience
     end
 
-    def PreviousWorkplace= previous_workplace
+    def previous_workplace= previous_workplace
         @previous_workplace = previous_workplace
     end
 
-    def PreviousWorkplace
+    def previous_workplace
         @previous_workplace
     end
 
-    def PreviousPosition= previous_position
+    def previous_position= previous_position
         @previous_position = previous_position
     end
 
-    def PreviousPosition
+    def previous_position
         @previous_position
     end
 
-    def PreviousWage= previous_wage
+    def previous_wage= previous_wage
         @previous_wage = previous_wage
     end
 
-    def PreviousWage
+    def previous_wage
         @previous_wage
     end
 
     def initialize fullname, birthdate, phone, address, email, passport, speciality, experience, previous_workplace, previous_position, previous_wage
-        self.Fullname = fullname
-        self.Birthdate = birthdate
-        self.Phone = phone
-        self.Address = address
-        self.EMail = email
-        self.Passport = passport
-        self.Speciality = speciality
-        self.Experience = experience
-        self.PreviousWorkplace = previous_workplace
-        self.PreviousPosition = previous_position
-        self.PreviousWage = previous_wage
+        self.fullname = fullname
+        self.birthdate = birthdate
+        self.phone = phone
+        self.address = address
+        self.email = email
+        self.passport = passport
+        self.speciality = speciality
+        self.experience = experience
+        self.previous_workplace = previous_workplace
+        self.previous_position = previous_position
+        self.previous_wage = previous_wage
     end
 
-    def ShowInfo
-        puts "Фамилия Имя Отчество: #{@fullname}"
-        puts "Дата рождения: #{@birthdate}"
-        puts "Телефон: #{@phone}"
-        puts "Адрес: #{@address}"
-        puts "Электронная почта: #{@email}"
-        puts "Пасрорт: #{@passport}"
-        puts "Специальность: #{@speciality}"
-        puts "Стаж: #{@experience}"
+    def to_s
+        str = "Фамилия Имя Отчество: #{@fullname}\nДата рождения: #{@birthdate}\nТелефон: #{@phone}\nАдрес: #{@address}\nЭлектронная почта: #{@email}\nПасрорт: #{@passport}\nСпециальность: #{@speciality}\nСтаж: #{@experience}\n"
         if @experience != 0 then
-            puts "Предыдущее место работы: #{@previous_workplace}"
-            puts "Должность на предыдущем месте работы: #{@previous_position}"
-            puts "Зароботная плата на предыдущем месте работы: #{@previous_wage}"
+            str += "Предыдущее место работы: #{@previous_workplace}\nДолжность на предыдущем месте работы: #{@previous_position}\nЗароботная плата на предыдущем месте работы: #{@previous_wage}\n"
         end
+        str
     end
 end

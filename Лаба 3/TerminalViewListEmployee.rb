@@ -6,45 +6,41 @@ class TerminalViewListEmployee
         @employees = employees
     end
 
-    def EnterValue validation
+    def enter_value(validation)
         begin
             value = (STDIN.gets.chomp).force_encoding("cp866").encode("utf-8", replace: nil)
-            validation.call value
+            validation.call(value)
         rescue => exception
             puts exception.message
             retry
         end
     end
 
-    def Search
-        puts "Введите номер параметра поиска:
-            1 - ФИО;
-            2 - электронная почта;
-            3 - телефон;
-            4 - паспорт."
+    def search_employee
+        puts "Введите ФИО, электронную почту, телефон или паспорт:"
         param = STDIN.gets.chomp
-        case param
-        when "1"
-            puts "Введите ФИО:"
-            fullname = Employee.ValidateFullName(STDIN.gets.chomp)
-            employee = @List.SearchByFullname(fullname)
-        when "2"
-            puts "Введите электронную почту:"
-            email = Employee.ValidateEmail(STDIN.gets.chomp)
-            employee = @List.SearchByFullname(email)  
-        when "3"
-            puts "Введите телефон:"
-            phone = Employee.ValidatePhone(STDIN.gets.chomp)
-            employee = @List.SearchByFullname(phone)
-        when "4"
-            puts "Введите паспорт:"
-            passport = Employee.ValidatePassport
-            employee = @List.SearchByFullname(passport)
+        if Employee.fullname? param
+            fullname = Employee.validate_fullname(param)
+            emp = @employees.search_by_fullname(fullname)
         end
-        employee.ShowInfo
+        if Employee.email? param
+            email = Employee.validate_email(param)
+            emp = @employees.search_by_email(email)
+        end
+        if Employee.phone? param
+            phone = Employee.validate_phone(param)
+            emp = @employees.search_by_phone(phone)
+        end
+        if Employee.passport? param
+            passport = Employee.validate_passport(param)
+            emp = @employees.search_by_passport(passport)
+        end
+        puts emp.to_s
     end
 
-    def Edit employee
+    def edit_employee(employee)
+        employee = self.search
+
         menu = "Выберите поле для редактирования
             1 - ФИО;
             2 - дата рождения;
@@ -54,7 +50,7 @@ class TerminalViewListEmployee
             6 - паспорт;
             7 - специальность;
             8 - стаж"
-        unless employee.Experience == 0 then
+        unless employee.experience == 0 then
             menu += ";
                 9 - предыдущее место работы;
                 10 - предыдущая должность;
@@ -64,96 +60,191 @@ class TerminalViewListEmployee
         end
         puts(menu.squeeze("\t"))
 
+        param = STDIN.gets.chomp
+        case param
+        when "1"
+            puts "Текущее значение: #{employee.fullname}"
+            validate_fullname = Proc.new { |str| employee.validate_fullname(str)}
+            employee.fullname = enter_value(validate_fullname)
+        when "2"
+            puts "Текущее значение: #{employee.birthdate}"
+            validate_birthdate = Proc.new { |str| employee.validate_birthdate(str)}
+            employee.birthdate = enter_value(validate_birthdate)
+        when "3"
+            puts "Текущее значение: #{employee.phone}"
+            validate_phone = Proc.new { |str| employee.validate_phone(str)}
+            employee.phone = enter_value(validate_phone)
+        when "4"
+            puts "Текущее значение: #{employee.address}"
+            employee.address = (STDIN.gets.chomp).force_encoding("cp866").encode("utf-8", replace: nil)
+        when "5"
+            puts "Текущее значение: #{employee.email}"
+            validate_email = Proc.new { |str| employee.validate_email(str)}
+            employee.email = enter_value(validate_email)
+        when "6"
+            puts "Текущее значение: #{employee.passport}"
+            validate_passport = Proc.new { |str| employee.validate_passport(str)}
+            employee.passport = enter_value(validate_passport)
+        when "7"
+            puts "Текущее значение: #{employee.speciality}"
+            employee.speciality = (STDIN.gets.chomp).force_encoding("cp866").encode("utf-8", replace: nil)
+        when "8"
+            puts "Текущее значение: #{employee.experience}"
+            employee.experience  = enter_value(Integer)
+        else
+            unless experience == 0 then
+                case param
+                when "9"
+                    puts "Текущее значение: #{employee.previous_workplace}"
+                    employee.previous_workplace = (STDIN.gets.chomp).force_encoding("cp866").encode("utf-8", replace: nil)
+                when "10"
+                    puts "Текущее значение: #{employee.previous_position}"
+                    employee.previous_position = (STDIN.gets.chomp).force_encoding("cp866").encode("utf-8", replace: nil)
+                when "11"
+                    puts "Текущее значение: #{employee.previous_wage}"
+                    employee.previous_wage = enter_value(Integer)
+                end
+            end
+        end
     end
 
-    def AddEmployee
+    def add_employee
         
         puts "Введите информацию о работнике"
 
         puts "Фамилия Имя Отчество:"
-        fullname    = EnterValue(Employee.ValidateFullName)
+        validate_fullname = Proc.new { |str| Employee.validate_fullname(str)}
+        fullname = enter_value(validate_fullname)
 
         puts "Дата рождения:"
-        birthdate   = EnterValue(Employee.ValidateBirthDate)
+        validate_birthdate = Proc.new { |str| Employee.validate_birthdate(str)}
+        birthdate = enter_value(validate_birthdate)
 
-        puts "Телефон: #{@phone}"
-        phone       = EnterValue(Employee.ValidatePhone)
+        puts "Телефон:"
+        validate_phone = Proc.new { |str| Employee.validate_phone(str)}
+        phone = enter_value(validate_phone)
 
-        puts "Адрес: #{@address}"
-        address     = (STDIN.gets.chomp).force_encoding("cp866").encode("utf-8", replace: nil)
+        puts "Адрес:"
+        address = (STDIN.gets.chomp).force_encoding("cp866").encode("utf-8", replace: nil)
 
         puts "Электронная почта:"
-        email       = EnterValue(Employee.ValidateEmail)
+        validate_email = Proc.new { |str| Employee.validate_email(str)}
+        email = enter_value(validate_email)
 
-        puts "Пасрорт: #{@passport}"
-        passport    = EnterValue(Employee.ValidatePassport)
+        puts "Пасрорт:"
+        validate_passport = Proc.new { |str| Employee.validate_passport(str)}
+        passport = enter_value(validate_passport)
 
-        puts "Специальность: #{@speciality}"
-        speciality  = (STDIN.gets.chomp).force_encoding("cp866").encode("utf-8", replace: nil)
+        puts "Специальность:"
+        speciality = (STDIN.gets.chomp).force_encoding("cp866").encode("utf-8", replace: nil)
 
-        puts "Стаж: #{@experience}"
-        experience  = EnterValue(Integer)
+        puts "Стаж:"
+        experience = enter_value(Proc.new { |str| Integer(str)})
 
-        if @experience != 0 then
-            puts "Предыдущее место работы: #{@previous_workplace}"
+        unless experience == 0 then
+            puts "Предыдущее место работы:"
             previous_workplace = (STDIN.gets.chomp).force_encoding("cp866").encode("utf-8", replace: nil)
 
-            puts "Должность на предыдущем месте работы: #{@previous_position}"
+            puts "Должность на предыдущем месте работы:"
             previous_position = (STDIN.gets.chomp).force_encoding("cp866").encode("utf-8", replace: nil)
 
-            puts "Зароботная плата на предыдущем месте работы: #{@previous_wage}"
-            previous_wage = EnterValue(Integer)
+            puts "Зароботная плата на предыдущем месте работы:"
+            previous_wage = enter_value(Proc.new { |str| Integer(str)})
 
             employee = Employee.new(fullname, birthdate, phone, address, email, passport, speciality, experience, previous_workplace, previous_position, previous_wage)
         else
-            employee = Employee.EmployeeWithoutExperience(fullname, birthdate, phone, address, email, passport, speciality)
+            employee = Employee.employee_without_experience(fullname, birthdate, phone, address, email, passport, speciality)
         end
-        @employees.Add(employee)
+        @employees.add(employee)
     end
 
-    def ViewList
+    def delete_employee(employee)
+        @employees.delete(employee)
+    end
+
+    def head
+        puts "Количество выводимых записей"
+        n = Integer(STDIN.gets.chomp)
+        view_list(n)
+    end
+
+    def view_list(n = @employees.get.length)
         puts "Список пользователей:"
-        @employees.Get.each_with_index { |emp, i|
+        @employees.get.each_with_index { |emp, i|
+            break if i >= n
             puts("# #{i}")
-            emp.ShowInfo
+            puts(emp.to_s)
         }
     end
 
-    def ViewTable
+    def view_table
         fields_length = Array.new(13, 0)
-        employees = @employees.Get
+        employees = @employees.get
         fields_length[0] = employees.length.to_s.length
 
         employees.each { |emp|
-            fields_length[1] = emp.FullName.length          > fields_length[1] ? emp.FullName.length        : fields_length[1]
-            fields_length[2] = emp.Birthdate.length         > fields_length[2] ? emp.Birthdate.length       : fields_length[2]
-            fields_length[3] = emp.Phone.length             > fields_length[3] ? emp.Phone.length           : fields_length[3]
-            fields_length[4] = emp.Address.length           > fields_length[4] ? emp.Address.length         : fields_length[4]
-            fields_length[5] = emp.EMail.length             > fields_length[5] ? emp.EMail.length           : fields_length[5]
-            fields_length[6] = emp.Passport.length          > fields_length[6] ? emp.Passport.length        : fields_length[6]
-            fields_length[7] = emp.Speciality.length        > fields_length[7] ? emp.Speciality.length      : fields_length[7]
-            fields_length[8] = emp.Experience.to_s.length   > fields_length[8] ? emp.Experience.to_s.length : fields_length[8]
+            fields_length[1] = emp.fullname.length          > fields_length[1] ? emp.fullname.length        : fields_length[1]
+            fields_length[2] = emp.birthdate.length         > fields_length[2] ? emp.birthdate.length       : fields_length[2]
+            fields_length[3] = emp.phone.length             > fields_length[3] ? emp.phone.length           : fields_length[3]
+            fields_length[4] = emp.address.length           > fields_length[4] ? emp.address.length         : fields_length[4]
+            fields_length[5] = emp.email.length             > fields_length[5] ? emp.email.length           : fields_length[5]
+            fields_length[6] = emp.passport.length          > fields_length[6] ? emp.passport.length        : fields_length[6]
+            fields_length[7] = emp.speciality.length        > fields_length[7] ? emp.speciality.length      : fields_length[7]
+            fields_length[8] = emp.experience.to_s.length   > fields_length[8] ? emp.experience.to_s.length : fields_length[8]
 
-            unless emp.Experience == 0 then 
-                fields_length[9]    = emp.PreviousWorkplace.length  > fields_length[9]  ? emp.PreviousWorkplace.length  : fields_length[9]
-                fields_length[10]   = emp.PreviousPosition.length   > fields_length[10] ? emp.PreviousPosition.length   : fields_length[10]
-                fields_length[11]   = emp.PreviousWage.to_s.length  > fields_length[11] ? emp.PreviousWage.to_s.length  : fields_length[11]
+            unless emp.experience == 0 then 
+                fields_length[9]    = emp.previous_workplace.length  > fields_length[9]  ? emp.previous_workplace.length  : fields_length[9]
+                fields_length[10]   = emp.previous_position.length   > fields_length[10] ? emp.previous_position.length   : fields_length[10]
+                fields_length[11]   = emp.previous_wage.to_s.length  > fields_length[11] ? emp.previous_wage.to_s.length  : fields_length[11]
             end
         }
 
         fields_length.map! { |f| f + 3 }
 
-        puts("".ljust(fields_length[0]) + "Fullname".ljust(fields_length[1]) + "Birthdate".ljust(fields_length[2]) + "Phone".ljust(fields_length[3]) +"Address".ljust(fields_length[4]) + "E-Mail".ljust(fields_length[5]) + "Passport".ljust(fields_length[6]) + "Speciality".ljust(fields_length[7]) + "Experience".ljust(fields_length[8]) + "PreviousWorkplace".ljust(fields_length[9]) + "PreviousPosition".ljust(fields_length[10]) + "PreviousWage".ljust(fields_length[11]))
+        puts("".ljust(fields_length[0]) + "fullname".ljust(fields_length[1]) + "birthdate".ljust(fields_length[2]) + "phone".ljust(fields_length[3]) +"address".ljust(fields_length[4]) + "E-Mail".ljust(fields_length[5]) + "passport".ljust(fields_length[6]) + "speciality".ljust(fields_length[7]) + "experience".ljust(fields_length[8]) + "previous_workplace".ljust(fields_length[9]) + "previous_position".ljust(fields_length[10]) + "previous_wage".ljust(fields_length[11]))
 
         employees.each_with_index { |emp, i|
-            out = i.to_s.ljust(fields_length[0]) + emp.FullName.ljust(fields_length[1]) + emp.Birthdate.ljust(fields_length[2]) + emp.Phone.ljust(fields_length[3]) + emp.Address.ljust(fields_length[4]) + emp.EMail.ljust(fields_length[5]) + emp.Passport.ljust(fields_length[6]) + emp.Speciality.ljust(fields_length[7]) + emp.Experience.to_s.ljust(fields_length[8])
+            out = i.to_s.ljust(fields_length[0]) + emp.fullname.ljust(fields_length[1]) + emp.birthdate.ljust(fields_length[2]) + emp.phone.ljust(fields_length[3]) + emp.address.ljust(fields_length[4]) + emp.email.ljust(fields_length[5]) + emp.passport.ljust(fields_length[6]) + emp.speciality.ljust(fields_length[7]) + emp.experience.to_s.ljust(fields_length[8])
 
-            unless emp.Experience == 0 then
-                out += emp.PreviousWorkplace.ljust(fields_length[9]) + emp.PreviousPosition.ljust(fields_length[10]) + emp.PreviousWage.to_s.ljust(fields_length[11])
+            unless emp.experience == 0 then
+                out += emp.previous_workplace.ljust(fields_length[9]) + emp.previous_position.ljust(fields_length[10]) + emp.previous_wage.to_s.ljust(fields_length[11])
             end
 
             puts(out)
         }
+    end
+
+    def sort
+        puts ""
+        param = STDIN.gets.chomp
+        case param
+        when "1"
+            @employees.sort_by_fullname!
+        when "2"
+            @employees.sort_by_birthdate!
+        when "3"
+            @employees.sort_by_phone!
+        when "4"
+            @employees.sort_by_address!
+        when "5"
+            @employees.sort_by_email!
+        when "6"
+            @employees.sort_by_passport!
+        when "7"
+            @employees.sort_by_speciality!
+        when "8"
+            @employees.sort_by_experience!
+        when "9"
+            @employees.sort_by_previous_workplace!
+        when "10"
+            @employees.sort_by_previous_position!
+        when "11"
+            @employees.sort_by_previous_wage!
+        end
+    end
+
+    def save_to_file(filename)
+        @employees.to_json(filename)
     end
 
 end

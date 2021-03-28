@@ -5,46 +5,50 @@ require 'base64'
 require_relative "Employee"
 
 class ListEmployee
-    def initialize
-        @List = Array.new
+    def initialize(array = [])
+        @List = array
     end
 
-    def self.FromJson json_file
+    def self.from_json json_file
+        
+        private_key = OpenSSL::PKey::RSA.new File.read 'private_key.pem'
+
         employees = (JSON.load(File.new(json_file)))["employees"]
         list = ListEmployee.new
         employees.each { |emp|
+            decrypted_passport = private_key.private_decrypt(Base64.decode64(emp["passport"]))
+
             unless emp["experience"] == 0
-                list.Add Employee.new emp["fullname"], emp["birthdate"], emp["phone"], emp["address"], emp["email"], emp["passport"], emp["speciality"], emp["experience"], emp["previous_workplace"], emp["previous_position"], emp["previous_wage"]
+                list.add Employee.new emp["fullname"], emp["birthdate"], emp["phone"], emp["address"], emp["email"], decrypted_passport, emp["speciality"], emp["experience"], emp["previous_workplace"], emp["previous_position"], emp["previous_wage"]
             else
-                list.Add Employee.EmployeeWithoutExperience emp["fullname"], emp["birthdate"], emp["phone"], emp["address"], emp["email"], emp["passport"], emp["speciality"]
+                list.add Employee.employee_without_experience emp["fullname"], emp["birthdate"], emp["phone"], emp["address"], emp["email"], decrypted_passport, emp["speciality"]
             end
         }
         list
     end
 
-    def ToJson json_file
-        file = File.open("\.ssh\\public.pem", "rb:UTF-16LE")
-        key = file.read.force_encoding("UTF-16LE").encode("utf-8", replace: nil).gsub("\\n", "\n")
-        file.close
-        public_key = OpenSSL::PKey::RSA.new("-----BEGIN RSA PUBLIC KEY-----\nMIIBCgKCAQEAwCikh1MhXaqJd4WhQADJlw2wv5aaQlfkdNMaP9EHQYkBifTl7cES\nogazKrQXb+Q50FfVGuwnUBwXX0qneeECWVHmzQazuRA9aOQ0+KgNImmqr3mF9Te1\nz75JlEVXR6/XTjJ74DjeTfKO/Ay9X6EjUKJdoDGTVAOXZ3UkdZeIzsvHyoYz5cd/\nOyidmVuLMZKIoHFCpAhpR2s8IKsXz1OfhxYT1BYDadUxG0HYittYRlVaFP4BAfOV\nHMuP1fZAl3Kltb6gNATV+KeC8yRFG0Pm4CgSK0oEhn/Gr7yLbDUrIJblg9aV59tk\nHZYuphar5Mhdt+3lX9mAlXMtEEf4sRyvAQIDAQAB\n-----END RSA PUBLIC KEY-----\n")
+    def to_json(json_file)
+        public_key = OpenSSL::PKey::RSA.new File.read 'public_key.pem'
 
         hash = {}
         hash["employees"] = []
         @List.each { |emp|
+            encrypted_passport = Base64.encode64(public_key.public_encrypt(emp.passport))
+
             emp_hash = {}
-            emp_hash["fullname"] = emp.FullName
-            emp_hash["birthdate"] = emp.Birthdate
-            emp_hash["phone"] = emp.Phone
-            emp_hash["address"] = emp.Address
-            emp_hash["email"] = emp.EMail
-            emp_hash["passport"] = Base64.encode64(public_key.public_encrypt(emp.Passport))
-            emp_hash["speciality"] = emp.Speciality
-            emp_hash["experience"] = emp.Experience
+            emp_hash["fullname"] = emp.fullname
+            emp_hash["birthdate"] = emp.birthdate
+            emp_hash["phone"] = emp.phone
+            emp_hash["address"] = emp.address
+            emp_hash["email"] = emp.email
+            emp_hash["passport"] = encrypted_passport
+            emp_hash["speciality"] = emp.speciality
+            emp_hash["experience"] = emp.experience
             
-            unless emp.Experience == 0 then
-                emp_hash["previous_workplace"] = emp.PreviousWorkplace
-                emp_hash["previous_position"] = emp.PreviousPosition
-                emp_hash["previous_wage"] = emp.PreviousWage
+            unless emp.experience == 0 then
+                emp_hash["previous_workplace"] = emp.previous_workplace
+                emp_hash["previous_position"] = emp.previous_position
+                emp_hash["previous_wage"] = emp.previous_wage
             end
 
             hash["employees"].push(emp_hash)
@@ -52,31 +56,75 @@ class ListEmployee
         JSON.dump(hash, File.new(json_file, "w"))
     end
 
-    def Add employee
-        @List.push employee
+    def add(employee)
+        @List.push(employee)
     end
 
-    def Get
+    def delete(employee)
+        @List.pop(employee)
+    end
+
+    def get
         @List
     end
 
-    def SearchByFullname fullname
-        List.filter { |emp| emp.FullName == fullname }[0]
+    def search_by_fullname(fullname)
+        @List.filter { |emp| emp.fullname == fullname }[0]
     end
 
-    def SearchByEMail email
-        List.filter { |emp| emp.EMail == email }[0]
+    def search_by_email(email)
+        @List.filter { |emp| emp.email == email }[0]
     end
 
-    def SearchByPhone phone
-        List.filter { |emp| emp.Phone == phone }[0]
+    def search_by_phone(phone)
+        @List.filter { |emp| emp.phone == phone }[0]
     end
 
-    def SearchByPassport passport
-        List.filter { |emp| emp.FullName == passport }[0]
+    def search_by_passport(passport)
+        @List.filter { |emp| emp.passport == passport }[0]
     end
 
-    def GetTextReport
-        List.filter { |emp| emp.FullName == fullname }[0]
+    def sort_by_fullname!
+        @List.sort! { |emp1, emp2| emp1.fullname <=> emp2.fullname }
+    end
+
+    def sort_by_birthdate!
+        @List.sort! { |emp1, emp2| emp1.birthdate <=> emp2.birthdate }
+    end
+
+    def sort_by_phone!
+        @List.sort! { |emp1, emp2| emp1.phone <=> emp2.phone }
+    end
+
+    def sort_by_address!
+        @List.sort! { |emp1, emp2| emp1.address <=> emp2.address }
+    end
+
+    def sort_by_email!
+        @List.sort! { |emp1, emp2| emp1.email <=> emp2.email }
+    end
+
+    def sort_by_passport!
+        @List.sort! { |emp1, emp2| emp1.passport <=> emp2.passport }
+    end
+
+    def sort_by_speciality!
+        @List.sort! { |emp1, emp2| emp1.speciality <=> emp2.speciality }
+    end
+
+    def sort_by_experience!
+        @List.sort! { |emp1, emp2| emp1.experience <=> emp2.experience }
+    end
+
+    def sort_by_previous_workplace!
+        @List.sort! { |emp1, emp2| emp1.fullname <=> emp2.fullname }
+    end
+
+    def sort_by_previous_position!
+        @List.sort! { |emp1, emp2| emp1.previous_position <=> emp2.previous_position }
+    end
+
+    def sort_by_previous_wage!
+        @List.sort! { |emp1, emp2| emp1.previous_wage <=> emp2.previous_wage }
     end
 end
