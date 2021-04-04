@@ -9,31 +9,22 @@ class ListEmployee
         @List = array
     end
 
-    def self.from_json json_file
-        
-        private_key = OpenSSL::PKey::RSA.new File.read 'private_key.pem'
-
-        employees = (JSON.load(File.new(json_file)))["employees"]
-        list = ListEmployee.new
-        employees.each { |emp|
-            decrypted_passport = private_key.private_decrypt(Base64.decode64(emp["passport"]))
-
+    def self.from_hash(hash)
+        employees = ListEmployee.new
+        hash.each { |emp|
             unless emp["experience"] == 0
-                list.add Employee.new emp["fullname"], emp["birthdate"], emp["phone"], emp["address"], emp["email"], decrypted_passport, emp["speciality"], emp["experience"], emp["previous_workplace"], emp["previous_position"], emp["previous_wage"]
+                employees.add Employee.new emp["fullname"], emp["birthdate"], emp["phone"], emp["address"], emp["email"], emp["passport"], emp["speciality"], emp["experience"], emp["previous_workplace"], emp["previous_position"], emp["previous_wage"]
             else
-                list.add Employee.employee_without_experience emp["fullname"], emp["birthdate"], emp["phone"], emp["address"], emp["email"], decrypted_passport, emp["speciality"]
+                employees.add Employee.employee_without_experience emp["fullname"], emp["birthdate"], emp["phone"], emp["address"], emp["email"], emp["passport"], emp["speciality"]
             end
         }
-        list
+        employees
     end
 
-    def to_json(json_file)
-        public_key = OpenSSL::PKey::RSA.new File.read 'public_key.pem'
-
+    def to_hash
         hash = {}
         hash["employees"] = []
         @List.each { |emp|
-            encrypted_passport = Base64.encode64(public_key.public_encrypt(emp.passport))
 
             emp_hash = {}
             emp_hash["fullname"] = emp.fullname
@@ -41,7 +32,7 @@ class ListEmployee
             emp_hash["phone"] = emp.phone
             emp_hash["address"] = emp.address
             emp_hash["email"] = emp.email
-            emp_hash["passport"] = encrypted_passport
+            emp_hash["passport"] = emp.passport
             emp_hash["speciality"] = emp.speciality
             emp_hash["experience"] = emp.experience
             
@@ -53,6 +44,40 @@ class ListEmployee
 
             hash["employees"].push(emp_hash)
         }
+        hash
+    end
+
+    def encrypt(public_key_filename, emloyees)
+        public_key = OpenSSL::PKey::RSA.new File.read 'public_key.pem'
+
+        employees.map { |employee|
+        encrypted_passport = Base64.encode64(public_key.public_encrypt(emp.passport))
+        employee.passport = encrypted_passport
+        }
+    end
+
+    def decrypt(private_key_filename, emloyees)
+        private_key = OpenSSL::PKey::RSA.new File.read 'private_key.pem'
+
+        employees.map { |employee|
+        decrypted_passport = private_key.private_decrypt(Base64.decode64(employee.passport))
+        employee.passport = decrypted_passport
+        }
+    end
+
+    def self.read_list_DB(client)
+        select_employees_query = "SELECT * FROM employees;"
+        result = client.query(select_employees_query)
+        ListEmployee.from_hash(result)
+    end
+
+    def self.from_json(json_file)
+        hash = (JSON.load(File.new(json_file)))["employees"]
+        Employee.from_hash(hash)
+    end
+
+    def to_json(json_file)
+        hash = @List.to_hash
         JSON.dump(hash, File.new(json_file, "w"))
     end
 

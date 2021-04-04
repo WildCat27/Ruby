@@ -1,9 +1,20 @@
 require_relative "Employee"
 require_relative "ListEmployee"
+require "mysql2"
+
 
 class TerminalViewListEmployee
     def initialize employees
         @employees = employees
+    end
+
+    def connect_db
+        Mysql2::Client.new(
+        :host => "localhost", 
+        :username => "test_user",
+        :password => "test_user",
+        :database => "Staff"
+    )
     end
 
     def enter_value(validation)
