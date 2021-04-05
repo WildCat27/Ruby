@@ -6,7 +6,7 @@ def get_menu
 end
 
 def main
-    list = ListEmployee.from_json("Лаба 3\\emp.json")
+    list = ListEmployee.from_json("Лаба 3/emp.json", "Лаба 3/private_key.pem")
     view = TerminalViewListEmployee.new(list)
 
     while true
