@@ -1,4 +1,5 @@
 require "json"
+require "psych"
 require 'openssl'
 require 'base64'
 
@@ -63,7 +64,22 @@ class ListEmployee
         JSON.dump({ "employees": hash_employees }, File.new(json_file, "w"))
     end
 
+    def self.from_yaml(yaml_file)
+        @List = YAML::load(File.open(yaml_file))
+    end
+
+    def to_yaml(yaml_file)
+        File.open(yaml_file, 'w') do |file|
+            file.write(Psych.dump(@List))
+        end
+    end
+
+    def self.from_yaml(yaml_file)
+        @List = Psych.parse_file(yaml_file).to_ruby
+    end
+
     def add(employee)
+
         @List.push(employee)
     end
 
