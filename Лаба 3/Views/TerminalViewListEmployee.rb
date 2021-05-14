@@ -1,5 +1,5 @@
-require_relative "Employee"
-require_relative "ListEmployee"
+require_relative "../Models/Employee"
+require_relative "../Models/ListEmployee"
 
 
 class TerminalViewListEmployee
@@ -149,7 +149,7 @@ class TerminalViewListEmployee
             puts "Должность на предыдущем месте работы:"
             previous_position = (STDIN.gets.chomp).force_encoding("cp866").encode("utf-8", replace: nil)
 
-            puts "Зароботная плата на предыдущем месте работы:"
+            puts "Заработная плата на предыдущем месте работы:"
             previous_wage = enter_value(Proc.new { |str| Integer(str)})
 
             employee = Employee.new(fullname, birthdate, phone, address, email, passport, speciality, experience, previous_workplace, previous_position, previous_wage)

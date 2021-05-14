@@ -13,7 +13,7 @@ class Employee
             string.gsub!(/\D/, "")
             return "#{string[0]}-#{string[1..3]}-#{string[4..9]}"
         else
-            raise "Некорректный номер телефона"
+            raise ArgumentError, "Некорректный номер телефона"
         end
     end
 
@@ -25,7 +25,7 @@ class Employee
         if email? string
             return string.downcase
         else
-            raise "Некорректный адрес электронной почты"
+            raise ArgumentError, "Некорректный адрес электронной почты"
         end
     end
 
@@ -46,7 +46,7 @@ class Employee
             end
             return fullname.join(" ")
         else
-            raise "Некорректные ФИО"
+            raise ArgumentError, "Некорректные ФИО"
         end
     end
 
@@ -66,7 +66,7 @@ class Employee
         begin
             Date.strptime(string, "%d.%m.%Y").strftime("%d.%m.%Y")
         rescue
-            raise "Некорректная дата рождения"
+            raise ArgumentError, "Некорректная дата рождения"
         end
     end
 
@@ -79,7 +79,7 @@ class Employee
             string.gsub!(/\D/, "")
             string[0..3] + " " + string[4..-1]
         else
-            raise "Некорректный паспорт"
+            raise ArgumentError, "Некорректный паспорт"
         end
     end
 
@@ -196,5 +196,9 @@ class Employee
             str += "Предыдущее место работы: #{@previous_workplace}\nДолжность на предыдущем месте работы: #{@previous_position}\nЗароботная плата на предыдущем месте работы: #{@previous_wage}\n"
         end
         str
+    end
+
+    def ==(emp)
+        @fullname == emp.fullname && @birthdate == emp.birthdate && @phone == emp.phone && @address == emp.address && @email == emp.email && @passport == emp.passport && @speciality == emp.speciality && @experience == emp.experience && @previous_workplace == emp.previous_workplace && @previous_position == emp.previous_position && @previous_wage == emp.previous_wage
     end
 end

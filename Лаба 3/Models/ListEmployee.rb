@@ -1,5 +1,6 @@
 require "json"
 require "psych"
+require "rexml/document"
 require 'openssl'
 require 'base64'
 
@@ -72,6 +73,13 @@ class ListEmployee
         File.open(yaml_file, 'w') do |file|
             file.write(Psych.dump(@List))
         end
+    end
+
+    def self.from_xml(xml_file)
+    end
+
+    def to_xml(xml_file)
+
     end
 
     def self.from_yaml(yaml_file)
