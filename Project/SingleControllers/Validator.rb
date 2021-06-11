@@ -56,13 +56,17 @@ class Validator
 
 
     def self.birthdate? date
-        date.class == Date || (date =~ /\d?\d\.\d\d\.\d\d(\d\d)?/ && (self.string_to_date date))
+        #date.class == Date || (date =~ /\d?\d\.\d\d\.\d\d(\d\d)?/ && (self.string_to_date date))
+        date.class == Date || Date.strptime(date, "%Y-%m-%d") || Date.strptime(date, "%d.%m.%Y")
     end
 
     def self.validate_birthdate date
         begin
             #Date.strptime(string, "%d.%m.%Y")#.strftime("%d.%m.%Y")
             if birthdate?(date)
+                if date.class == String
+                    date = (Date.strptime(date, "%Y-%m-%d") || Date.strptime(date, "%d.%m.%Y"))
+                end
                 return date
             end
         rescue

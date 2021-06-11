@@ -25,7 +25,7 @@ class Terminal_view_instance
 
 
     def save
-        @fields
+        @controller_instance.save(@fields.values)
     end
 
     def show_message(message)

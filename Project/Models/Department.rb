@@ -10,7 +10,7 @@ class Department
     end
 
     def to_s
-        "Отдел: #{@name}\n" + @posts.join("\n")
+        @name
     end
 
     def read_DB

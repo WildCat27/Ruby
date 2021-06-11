@@ -2,9 +2,11 @@ class Terminal_view_list
 
     def initialize(controller_list)
         @controller_list = controller_list
+        @selected_index = 0
+        @selected_item = @controller_list.choose_instance(0)
     end
 
-    def show(selected)
+    def show
         while true
             puts "1 - Показать список;"
             puts "2 - Добавить новый элемент;"
@@ -12,7 +14,7 @@ class Terminal_view_list
             puts "4 - Показать выбранный;"
             puts "5 - Удалить выбранный;"
             puts "6 - Закрыть."
-            puts "#selected #{selected}" if selected
+            puts "#selected #{@selected_item}"
             input = STDIN.gets.chomp
             case input
             when "1"
@@ -21,12 +23,12 @@ class Terminal_view_list
                 @controller_list.add_instance
             when "3"
                 puts "Введите номер элемента:"
-                index = Integer(STDIN.gets.chomp)
-                @controller_list.choose_instance(index)
+                @selected_index = Integer(STDIN.gets.chomp)
+                @selected_item = @controller_list.choose_instance(@selected_index)
             when "4"
-                @controller_list.show_instance
+                @controller_list.show_instance(@selected_index)
             when "5"
-                @controller_list.delete_instance
+                @controller_list.delete_instance(@selected_index)
             when "6"
                 break
             end

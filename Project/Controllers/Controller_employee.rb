@@ -4,12 +4,9 @@ require_relative "Controller_instance"
 
 class Controller_employee < Controller_instance
 
-    def save(fields)
-        if fields["experience"] == 0
-            Employee.employee_without_experience(*fields)
-        else
-            Employee.new(*fields)
-        end
+    def save(values)
+        emp = Employee.new(*values)
+        @save_strategy.save(emp)
     end
 
     def check(param, value)
@@ -24,7 +21,7 @@ class Controller_employee < Controller_instance
             #@model.experience = fields["experience"]
             true
         rescue => exception
-            view.show_message(exception.message)
+            @save_strategy.view.show_message(exception.message)
         end
     end
 end

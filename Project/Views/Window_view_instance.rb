@@ -1,18 +1,27 @@
-class Window_view_instance
-    def initialize(controller_instance)
+class Window_view_instance < FXMainWindow
+    def initialize(app, controller_instance)
+        super(app, "New employee" , :width => 600, :height => 700)
         @controller_instance = controller_instance
         @fields = Hash.new
-        @save_button = FXButton.new(self, "SAVE", :x => 200, :y => 200)
-        @edit_button = FXButton.new(self, "EDIT", :x => 200, :y => 200)
-        @cancel_button = FXButton.new(self, "CANCEL", :x => 200, :y => 200)
+        @save_button = FXButton.new(self, "SAVE")
+        @save_button.connect(SEL_COMMAND) do |sender, selector, data|
+            save
+        end
+        @cancel_button = FXButton.new(self, "CANCEL")
+        @cancel_button.connect(SEL_COMMAND) do |sender, selector, data|
+            close
+        end
     end
 
-    def show
-        
+    def create
+        super
+        show(PLACEMENT_SCREEN)
     end
 
+    def show_view
+        create
+    end
 
     def save
-        @fields
     end
 end

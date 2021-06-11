@@ -4,13 +4,19 @@ require_relative "../SingleControllers/Encrypter"
 
 
 class Employee
+    
     attr_reader :fullname, :birthdate, :phone, :address, :email, :passport, :speciality, :experience, :previous_workplace, :previous_position, :previous_wage
 
     
-    def self.employee_without_experience fullname, birthdate, phone, address, email, passport, speciality
-        Employee.new fullname, birthdate, phone, address, email, passport, speciality, 0, nil, nil, nil
+#   Вызывает конструктор класса Employee для сотрудника без опыта работы
+#   @see initialize
+    def self.employee_without_experience(fullname, birthdate, phone, address, email, passport, speciality)
+        Employee.new(fullname, birthdate, phone, address, email, passport, speciality, 0, nil, nil, nil)
     end
 
+
+#   Создает объект класса Employee из хеша
+#   @note Паспорт зашифрован
     def self.from_encrypted_hash(hash)
         decrypted_passport = Encrypter.controller.decrypt(hash["passport"])
         Employee.new(hash["fullname"],
@@ -27,50 +33,96 @@ class Employee
             )
     end
 
-    def fullname= fullname
+#   @!attribute
+#   Устанавливает ФИО
+#   @param fullname [String]
+    def fullname=(fullname)
         @fullname = Validator.validate_fullname fullname
     end
 
-    def birthdate= birthdate
+#   Устанавливает дату рождения
+#   @param birthdate [String] только Date или String
+#   @note Принимает строку в формате "%Y-%m-%d" или "%Y-%m-%d"
+    def birthdate=(birthdate)
         @birthdate = Validator.validate_birthdate birthdate
     end
 
-    def phone= phone
+#   Устанавливает номер телефона
+#   @param phone [String]
+#   @note Распознает российские номера с пробелами и тире
+    def phone=(phone)
         @phone = Validator.validate_phone phone
     end
 
-    def address= address
+#   Устанавливает адрес
+#   @param address [String]
+    def address=(address)
         @address = address
     end
 
-    def email= email
+
+#   Устанавливает электронную почту
+#   @param email [String]
+    def email=(email)
         @email = Validator.validate_email email
     end
 
-    def passport= passport
+
+#   Устанавливает номер и серию паспорта
+#   @param passport [String]
+#   @note Допустимо использование пробела или тире
+    def passport=(passport)
         @passport = Validator.validate_passport passport
     end
 
-    def speciality= speciality
+
+#   Устанавливает специальность
+#   @param speciality [String]
+    def speciality=(speciality)
         @speciality = speciality
     end
 
-    def experience= experience
+
+#   Устанавливает опыт работы
+#   @param experience [String]
+    def experience=(experience)
         @experience = experience
     end
 
-    def previous_workplace= previous_workplace
+#   Устанавливает предыдущее место работы
+#   @param previous_workplace [String]
+    def previous_workplace=(previous_workplace)
         @previous_workplace = previous_workplace
     end
 
-    def previous_position= previous_position
+
+#   Устанавливает должность на предыдущем месте работы
+#   @param previous_position [String]
+    def previous_position=(previous_position)
         @previous_position = previous_position
     end
 
-    def previous_wage= previous_wage
+
+#   Устанавливает зарплату на предыдущем местре работы
+#   @param previous_wage [Numeric]
+    def previous_wage=(previous_wage)
         @previous_wage = previous_wage
     end
 
+
+#   Устанавливает дату рождения
+#   @param fullname [String] Фамилия Имя Отчество
+#   @param birthdate [Date, String] Дата рождения (принимает строку в формате "%Y-%m-%d" или "%Y-%m-%d")
+#   @param phone [String] Российский номер телефона (допустимы пробелы и тире)
+#   @param address [String] Адрес проживания
+#   @param email [String] Электронная почта
+#   @param passport [String] Серия и номер паспорта (допустимы пробелы и тире)
+#   @param speciality [String] Наименование специальности
+#   @param experience [String] Опыт работы
+#   @param previous_workplace [String] Предыдущее место работы
+#   @param previous_position [String] Должность на предыдущем месте работы
+#   @param previous_wage [Numeric] Зарплата на предыдущем месте работы
+#   @return [Employee] Работник
     def initialize fullname, birthdate, phone, address, email, passport, speciality, experience, previous_workplace, previous_position, previous_wage
         self.fullname = fullname
         self.birthdate = birthdate

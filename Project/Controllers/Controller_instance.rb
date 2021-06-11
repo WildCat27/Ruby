@@ -1,24 +1,7 @@
 class Controller_instance
-    attr_accessor :view
-    def initialize(controller_list)
-        @controller_list = controller_list
-    end
+    attr_accessor :save_strategy
 
     def show
-        @view.show
-    end
-
-    def show_instance
-        @view.show_instance
-    end
-
-    # for separate class
-    def save
-    end
-
-    def check
-    end
-
-    def cancel
+        @save_strategy.show
     end
 end

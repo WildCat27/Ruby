@@ -2,7 +2,6 @@ require "json"
 require "psych"
 require "rexml/document"
 
-
 require_relative "../SingleControllers/DBController"
 require_relative "Employee"
 require_relative "List"
@@ -12,7 +11,14 @@ class Employee_list
         @List = array
     end
     
-
+    def update_db
+        DBController.controller.execute("DELETE FROM employees;")
+        @List.each do |employee|
+            DBController.controller.execute(
+                "INSERT INTO employees (fullname, birthdate, phone, address, email, passport, speciality, experience, previous_workplace, previous_position, previous_wage) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                *(employee.to_encrypted_hash.values))
+        end
+    end
 
     def from_json(json_file)
         hash_employees = (JSON.load(File.new(json_file)))["employees"]
@@ -48,12 +54,11 @@ class Employee_list
     def add(employee)
         DBController.controller.execute(
             "INSERT INTO employees (fullname, birthdate, phone, address, email, passport, speciality, experience, previous_workplace, previous_position, previous_wage) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
-            employee.to_encrypted_hash.values)
+            *(employee.to_encrypted_hash.values))
         @List.push(employee)
     end
 
     def replace(emp1, emp2)
-        emp2 = @List[0]
         DBController.controller.execute(
             "UPDATE employees SET fullname = ?, birthdate = ?, phone = ?, address = ?, email = ?, passport = ?, speciality = ?, experience = ?, previous_workplace = ?, previous_position = ?, previous_wage = ? WHERE employee_id = (SELECT employee_id FROM employees WHERE fullname = ? AND birthdate = ? AND phone = ? AND address = ? AND email = ? AND speciality = ? AND experience = ? AND previous_workplace = ? AND previous_position = ? AND previous_wage = ?);",
             *(emp2.to_encrypted_hash.values),
@@ -82,11 +87,13 @@ class Employee_list
         emp1.previous_wage = emp2.previous_wage
     end
 
-    def delete(employee)
+    def delete(index)
+        employee = choose(index)
         DBController.controller.execute(
             "DELETE FROM employees WHERE phone = ?;",
             employee.phone)
-        @List.pop(employee)
+        @List.pop(index)
+        puts @List
     end
 
     def choose(index)

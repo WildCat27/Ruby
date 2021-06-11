@@ -1,18 +1,21 @@
 require "require_all"
-require_relative "Controllers/Controller_employee_list"
+require_relative "Fabric/Terminal_fabric"
+require_relative "Fabric/Window_fabric"
 require_relative "Views/Terminal_view_list"
+require_relative "Fabric/Employee_fabric"
 
 
-controller = Controller_employee_list.fabric_terminal
-controller.read_from_db
 #controller.from_json("/home/diana/Documents/Ruby/Лаба 3/data/emp.json")
-controller.show_view
-
+=begin
+Employee_fabric.fabric.view_fabric = Terminal_fabric.new
+controller = Employee_fabric.fabric.controller_list
+controller.show
+=end
 
 FXApp.new do |app|
-    controller = Controller_employee_list.fabric_window(app)
-    controller.read_from_db
-    controller.show_list
+    Employee_fabric.fabric.view_fabric = Window_fabric.new(app)
+    controller = Employee_fabric.fabric.controller_list
+    controller.show
     app.create
     app.run
 end
