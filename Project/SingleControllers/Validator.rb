@@ -2,20 +2,20 @@ require "date"
 
 class Validator
     def self.phone? string
-        string =~ /(7|8|\+7)[\-\s]?(\d{3}|(\(\d{3}\)))[\-\s]?\d{2}[\-\s]?\d{2}/
+        return true if string =~ /(7|8|\+7)[\-\s]?(\d{3}|(\(\d{3}\)))[\-\s]?\d{3}[\-\s]?\d{2}[\-\s]?\d{2}$/
     end
 
     def self.validate_phone string
         if phone? string
             string.gsub!(/\D/, "")
-            return "#{string[0]}-#{string[1..3]}-#{string[4..9]}"
+            return "#{string[0]}-#{string[1..3]}-#{string[4..10]}"
         else
             raise ArgumentError, "Некорректный номер телефона"
         end
     end
 
     def self.email? string
-        string =~ /([a-z0-9_-]+\.)*[a-z0-9_-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6}/
+        string =~ /([a-z0-9_-]+\.)*[a-z0-9_-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6}$/
     end
 
     def self.validate_email string
@@ -28,7 +28,7 @@ class Validator
 
     def self.fullname? string
         # —
-        string =~ /\s*[a-zа-яё]+(\-[a-zа-яё]+)?\s+[a-zа-яё]+(\-[a-zа-яё]+)?\s+[a-zа-яё]+\s*([a-zа-яё]+)?\s*/i
+        string =~ /\s*[a-zа-яё]+(\-[a-zа-яё]+)?\s+[a-zа-яё]+(\-[a-zа-яё]+)?\s+[a-zа-яё]+\s*([a-zа-яё]+)?\s*$/i
     end
 
     def self.validate_fullname string
@@ -56,8 +56,10 @@ class Validator
 
 
     def self.birthdate? date
-        #date.class == Date || (date =~ /\d?\d\.\d\d\.\d\d(\d\d)?/ && (self.string_to_date date))
-        date.class == Date || Date.strptime(date, "%Y-%m-%d") || Date.strptime(date, "%d.%m.%Y")
+        return true if date.class == Date
+        return true if date =~ /\d?\d\.\d?\d\.\d\d(\d\d)?$/
+        return true if date =~ /\d{4}\-\d{2}\-\d{2}$/
+        return false
     end
 
     def self.validate_birthdate date
@@ -65,9 +67,16 @@ class Validator
             #Date.strptime(string, "%d.%m.%Y")#.strftime("%d.%m.%Y")
             if birthdate?(date)
                 if date.class == String
-                    date = (Date.strptime(date, "%Y-%m-%d") || Date.strptime(date, "%d.%m.%Y"))
+                    if date =~ /\d{4}\-\d{2}\-\d{2}$/
+                        date = Date.strptime(date, "%Y-%m-%d") 
+                    end
+                    if date =~ /\d?\d\.\d?\d\.\d\d(\d\d)?$/
+                        date = string_to_date(date) 
+                    end
                 end
                 return date
+            else
+                raise
             end
         rescue
             raise ArgumentError, "Некорректная дата рождения"
@@ -75,7 +84,7 @@ class Validator
     end
 
     def self.passport? string
-        string =~ /\s*\d{4}[\-\.\s+]?\d{6}\s*/
+        string =~ /\s*\d{4}[\-\.\s+]?\d{6}\s*$/
     end
 
     def self.validate_passport string

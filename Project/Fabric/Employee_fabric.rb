@@ -10,11 +10,7 @@ require_relative "../Views/Terminal_view_employee"
 class Employee_fabric < Fabric
 
     def list
-        employee_list = Employee_list.new
-        employee_list.from_json("emp.json")
-        employee_list.update_db
-        #employee_list.read_from_db
-        employee_list
+        Employee_list.new
     end
 
     def controller_instance

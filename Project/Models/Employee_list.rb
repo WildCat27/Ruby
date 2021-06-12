@@ -92,8 +92,7 @@ class Employee_list
         DBController.controller.execute(
             "DELETE FROM employees WHERE phone = ?;",
             employee.phone)
-        @List.pop(index)
-        puts @List
+        @List.delete_at(index)
     end
 
     def choose(index)

@@ -15,31 +15,37 @@ class DBController
                 :username => "test_user",
                 :password => "test_user",
                 :database => "Staff"
-            )
+            ) if !@client
             true
-        rescue
+        rescue Mysql2::Error::ConnectionError
             false
         end
     end
 
     def initialize
-        try_connect
         @requests = []
+        try_connect
     end
 
-
-
     def execute(request, *args)
-        @requests << [request, args]
-        while !@requests.empty?
-            if @client || try_connect
-                req = @requests.shift
-                statement = @client.prepare(req[0])
-                if result = statement.execute(*(req[1]))
+        @requests.append([request, args])
+        begin
+            if (@client || try_connect)
+                while !@requests.empty?
+                    req = @requests[0]
+                    statement = @client.prepare(req[0])
+                    if result = statement.execute(*(req[1]))
                     result = result.entries
+                    end
+                    @requests.delete_at(0)
                 end
-            end
-        end 
-        result
+                result
+            else
+                raise Mysql2::Error::ConnectionError.new("Ошибка подключения")
+            end 
+        rescue Mysql2::Error::ConnectionError
+            @client = false
+            return false
+        end
     end
 end
